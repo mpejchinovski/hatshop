@@ -1,0 +1,82 @@
+@model hatshop.Models.Hat
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Details</title>
+</head>
+
+<body>
+    <div class="d-flex flex-column">
+        <section class="container">
+            <div class="row hat-data" id="@Model.Id">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <div class="col-12 mb-0 d-flex">
+                        <img src="~/images/@Model.PicturePath" class="img-fluid z-depth-1 mx-auto hat-img"
+                            style="width: 70%;">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="hat-name">@Model.Name</h5>
+                    <p class="mb-2 text-muted text-uppercase small">Hats</p>
+
+                    <p><span class="mr-1" style="font-size: 20px;"><strong
+                                class="hat-price">$@Model.Price</strong></span>
+                    </p>
+                    <p class="pt-1 hat-description">
+                        @Model.Description
+                    </p>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-borderless mb-0">
+                            <tbody>
+                                <tr>
+                                    <th class="pl-0 w-25" scope="row"><strong>Category</strong></th>
+                                    <td>@(Model.Category != null ? Model.Category.Name : "N/A")</td>
+                                </tr>
+                                <tr>
+                                    <th class="pl-0 w-25" scope="row"><strong>Stock</strong></th>
+                                    <td class="hat-stock">@(Model.Stock == 0 ? "Out of stock" : Model.Stock)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <hr>
+                    <div class="table-responsive mb-2">
+                        <table class="table table-sm table-borderless">
+                            <tbody>
+                                <tr>
+                                    <td class="pl-0">
+                                        <label class="text-muted">Quantity:</label>
+                                        <input type="number" min="@(Model.Stock == 0 ? 0 : 1)" max="@Model.Stock"
+                                            class="hat-quantity-input" name="quantity"
+                                            value="@(Model.Stock != 0 ? 1 : Model.Stock)" onkeydown="return false" />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    @if (Model.Stock == 0)
+                    {
+                        <button type="button" class="btn btn-danger btn-md mr-1 mb-2">Unavailable</button>
+
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-danger btn-md mr-1 mb-2 buy-now">Buy now</button>
+                        <button type="button" class="btn btn-light btn-md mr-1 mb-2 add-to-cart"><i
+                            class="fas fa-shopping-cart pr-2"></i>Add to cart</button>
+                    }
+                </div>
+            </div>
+        </section>
+        <a href="/" class="btn btn-primary btn-md w-25 m-auto my-4">Back to shop</a>
+    </div>
+</body>
+</html>

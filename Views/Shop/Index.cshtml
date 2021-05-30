@@ -1,0 +1,285 @@
+@model IEnumerable<Hat>
+@using System.Text.RegularExpressions;
+
+@{
+    ViewData["Title"] = "Hat shop";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <title>Material Design for Bootstrap</title>
+</head>
+
+<body>
+    <header>
+        <div class="p-5 text-center bg-image shadow-1-strong container-wide" style="
+      background-image: url('https://localhost:5001/images/background.jpeg');
+      height: 400px;">
+            <div class="mask" style="background-color: rgba(0, 0, 0, 0.6);">
+                <div class="d-flex justify-content-center align-items-center h-100">
+                    <div class="text-white">
+                        <h1 class="mb-3">Martin's hat shop</h1>
+                        <a class="btn btn-outline-light btn-lg" href="#navbarSupportedContent" role="button">Browse
+                            inventory</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="mt-5 container">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+            <!-- Container wrapper -->
+            <div class="container-fluid">
+                <!-- Toggle button -->
+                <button class="navbar-toggler" type="button" data-mdb-toggle="collapse"
+                    data-mdb-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <strong class="text-dark mr-2">Categories</strong>
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">All</a>
+                        </li>
+                        @foreach (var category in ViewBag.Categories)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Shop" asp-action="Index"
+                                asp-route-categoryId="@category.Id">@category.Name</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+
+                <form class="d-flex input-group w-auto">
+                    @using (Html.BeginForm())
+                    {
+                        <p>
+                            <input id="filter" name="filter" type="text" />
+                            <input type="submit" class="btn btn-primary" value="Search" style="height: 33px;" />
+                        </p>
+                        <input type="hidden" name="categoryId" value="@Context.Request.Query["categoryId"]" />
+                    }
+                    <span class="input-group-text text-white border-0" id="search-addon">
+                        <i class="fas fa-search"></i>
+                    </span>
+                </form>
+            </div>
+        </nav>
+
+        @* Products *@
+        <section class="text-center mb-4">
+            <div class="row mb-5">
+                @foreach (var hat in Model)
+                {
+                    <div class="col-lg-4 col-md-12 mb-4">
+                        <div class="card shadow-1-strong" id="@hat.Id">
+                            <div class="card-wrap">
+                                <a asp-controller="Hats" asp-action="Details" asp-route-id="@hat.Id"
+                                style="color: inherit; text-decoration: none;">
+                                    <div style="height: 325px; overflow: hidden;">
+                                        <img src="~/images/@hat.PicturePath" class="card-img-top hat-img" alt="..."
+                                        style="padding: 15px;" />
+                                    </div>
+                                    <div class="card-body">
+                                        <h4 class="card-title hat-name">@hat.Name</h4>
+                                        @* <div class="hat-description-wrapper">
+                                            <p class="card-text hat-description">
+                                            @hat.Description
+                                            </p>
+                                            </div> *@
+                                        <input type="hidden" value="@hat.Description" class="hat-description"
+                                        name="hat-description" />
+                                    </div>
+                                    <ul class="list-group list-group-flush" style="margin-top: -30px;">
+                                        <br />
+                                        <li class="list-group-item hat-price" style="padding: 0px;">
+                                            <h5>$@hat.Price</h5>
+                                        </li>
+                                    </ul>
+                                </a>
+                            </div>
+                            <div class="card-body">
+                                <label class="text-muted">Quantity:</label>
+                                <input type="number" min="@(hat.Stock == 0 ? 0 : 1)" max="@hat.Stock"
+                                class="hat-quantity-input" name="quantity" value="@(hat.Stock != 0 ? 1 : hat.Stock)"
+                                onkeydown="return false" />
+                                <br />
+                                @if (hat.Stock == 0)
+                                {
+                                    <button type="button" class="btn btn-danger card-link mt-1 mr-1 mb-2">Unavailable</button>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-primary btn-md mr-1 mb-2 mt-1 add-to-cart"><i
+                                    class="fas fa-shopping-cart pr-2"></i>Add to cart</button>
+                                }
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item @(hat.Stock == 0 ? "text-danger" : "text-muted")"
+                                style="font-size: 15px;">
+                                    @if (hat.Stock == 0)
+                                    {
+                                        <text>Out of stock</text>
+                                    }
+                                    else
+                                    {
+                                        <text>Stock: </text>
+                                        <span class="hat-stock">@hat.Stock</span>
+                                    }
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                }
+            </div>
+            @* Pagination *@
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    @{
+                        string categoryId = Context.Request.Query["categoryId"];
+                        string filter = Context.Request.Query["filter"];
+                        string categoryQuery = !String.IsNullOrEmpty(categoryId) ? "&categoryId=" + categoryId : "";
+                        string filterQuery = !String.IsNullOrEmpty(filter) ? "&filter=" + filter : "";
+                        for (var i = 0; i < Math.Ceiling((double)ViewBag.NumberOfHats / 6); i++)
+                        {
+                            <li class="page-item">
+                                <a class="page-link"
+                                href="/?page=@(i + 1)@(filterQuery)@(categoryQuery)#navbarSupportedContent">@(i + 1)</a>
+                            </li>
+                        }
+                    }
+                </ul>
+            </nav>
+        </section>
+    </div>
+    <!-- Footer -->
+    <footer class="text-center text-lg-start bg-light text-muted">
+        <!-- Section: Social media -->
+        <section class="d-flex justify-content-center justify-content-lg-between p-4 border-bottom">
+            <!-- Left -->
+            <div class="me-5 d-none d-lg-block">
+                <span>Get connected with us on social networks:</span>
+            </div>
+            <!-- Left -->
+
+            <!-- Right -->
+            <div>
+                <a href="" class="me-4 text-reset">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="" class="me-4 text-reset">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="" class="me-4 text-reset">
+                    <i class="fab fa-google"></i>
+                </a>
+                <a href="" class="me-4 text-reset">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="" class="me-4 text-reset">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+                <a href="" class="me-4 text-reset">
+                    <i class="fab fa-github"></i>
+                </a>
+            </div>
+            <!-- Right -->
+        </section>
+        <!-- Section: Social media -->
+
+        <!-- Section: Links  -->
+        <section class="">
+            <div class="container text-center text-md-start mt-5">
+                <!-- Grid row -->
+                <div class="row mt-3">
+                    <!-- Grid column -->
+                    <div class="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
+                        <!-- Content -->
+                        <h6 class="text-uppercase fw-bold mb-4">
+                            <i class="fas fa-gem me-3"></i>Company name
+                        </h6>
+                        <p>
+                            Here you can use rows and columns to organize your footer content. Lorem ipsum
+                            dolor sit amet, consectetur adipisicing elit.
+                        </p>
+                    </div>
+                    <!-- Grid column -->
+
+                    <!-- Grid column -->
+                    <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
+                        <!-- Links -->
+                        <h6 class="text-uppercase fw-bold mb-4">
+                            Products
+                        </h6>
+                        <p>
+                            <a href="#!" class="text-reset">Angular</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-reset">React</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-reset">Vue</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-reset">Laravel</a>
+                        </p>
+                    </div>
+                    <!-- Grid column -->
+
+                    <!-- Grid column -->
+                    <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
+                        <!-- Links -->
+                        <h6 class="text-uppercase fw-bold mb-4">
+                            Useful links
+                        </h6>
+                        <p>
+                            <a href="#!" class="text-reset">Pricing</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-reset">Settings</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-reset">Orders</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-reset">Help</a>
+                        </p>
+                    </div>
+                    <!-- Grid column -->
+
+                    <!-- Grid column -->
+                    <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
+                        <!-- Links -->
+                        <h6 class="text-uppercase fw-bold mb-4">
+                            Contact
+                        </h6>
+                        <p><i class="fas fa-home me-3"></i> New York, NY 10012, US</p>
+                        <p>
+                            <i class="fas fa-envelope me-3"></i>
+                            info@example.com
+                        </p>
+                        <p><i class="fas fa-phone me-3"></i> + 01 234 567 88</p>
+                        <p><i class="fas fa-print me-3"></i> + 01 234 567 89</p>
+                    </div>
+                    <!-- Grid column -->
+                </div>
+                <!-- Grid row -->
+            </div>
+        </section>
+        <!-- Section: Links  -->
+    </footer>
+</body>
+
+</html>
+
+@section Scripts {
+@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
