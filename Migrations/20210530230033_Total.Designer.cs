@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using hatshop.Data;
 
 namespace hatshop.Migrations
 {
     [DbContext(typeof(HatShopDbContext))]
-    partial class HatShopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210530230033_Total")]
+    partial class Total
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -303,15 +305,11 @@ namespace hatshop.Migrations
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("HatId");
 
-                    b.HasIndex("OrderId", "HatId")
-                        .IsUnique();
+                    b.HasIndex("OrderId");
 
                     b.ToTable("OrderHat");
                 });

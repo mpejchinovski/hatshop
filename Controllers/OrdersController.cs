@@ -10,6 +10,7 @@ using hatshop.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
 namespace hatshop.Controllers
 {
@@ -22,11 +23,27 @@ namespace hatshop.Controllers
             _context = context;
         }
 
+        public string GetUserId()
+        {
+            string userIdValue = User.Identity.Name;
+            if (User.Identity is ClaimsIdentity claimsIdentity)
+            {
+                var userIdClaim = claimsIdentity.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+
+                if (userIdClaim != null)
+                    return userIdClaim.Value;
+            }
+            return string.Empty;
+        }
+
         // GET: Orders
         public async Task<IActionResult> Index()
         {
-            var hatShopDbContext = _context.Orders.Include(o => o.User);
-            return View(await hatShopDbContext.ToListAsync());
+            var userId = GetUserId();
+            Console.WriteLine(userId);
+            var orders = _context.Orders.Include(o => o.Hats).ThenInclude(h => h.Hat).Where(o => o.UserId == userId);
+
+            return View(await orders.ToListAsync());
         }
 
         // GET: Orders/Details/5
@@ -37,33 +54,28 @@ namespace hatshop.Controllers
                 return NotFound();
             }
 
-            var order = await _context.Orders
-                .Include(o => o.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            string userId = GetUserId();
+            var order = await _context.Orders.Include(o => o.Hats).ThenInclude(h => h.Hat).Where(o => o.Id == id).FirstOrDefaultAsync();
+
             if (order == null)
             {
                 return NotFound();
             }
 
+            if (order.UserId != userId)
+            {
+                return Redirect("/Identity/Account/AccessDenied");
+            }
+
             return View(order);
         }
 
-        [Authorize]
         // GET: Orders/Create
+        [Authorize]
         public IActionResult Create()
         {
-            string userIdValue = User.Identity.Name;
-            if (User.Identity is ClaimsIdentity claimsIdentity)
-            {
-                var userIdClaim = claimsIdentity.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
-
-                if (userIdClaim != null)
-                {
-                    userIdValue = userIdClaim.Value;
-                    Console.WriteLine(userIdValue);
-                    ViewData["UserId"] = userIdValue;
-                }
-            }
+            string userIdValue = GetUserId();
+            Console.WriteLine(userIdValue);
             return View();
         }
 
@@ -76,18 +88,7 @@ namespace hatshop.Controllers
         {
             if (ModelState.IsValid)
             {
-                string userIdValue = User.Identity.Name;
-                if (User.Identity is ClaimsIdentity claimsIdentity)
-                {
-                    var userIdClaim = claimsIdentity.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
-
-                    if (userIdClaim != null)
-                    {
-                        userIdValue = userIdClaim.Value;
-                        Console.WriteLine(userIdValue);
-                        ViewData["UserId"] = userIdValue;
-                    }
-                }
+                string userIdValue = GetUserId();
                 order.UserId = userIdValue;
                 _context.Add(order);
                 await _context.SaveChangesAsync();
@@ -98,6 +99,7 @@ namespace hatshop.Controllers
         }
 
         // GET: Orders/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -117,6 +119,8 @@ namespace hatshop.Controllers
         // POST: Orders/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Admin")]
+        [NonAction]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,UserId,DateTime")] Order order)
@@ -151,6 +155,7 @@ namespace hatshop.Controllers
         }
 
         // GET: Orders/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -170,6 +175,7 @@ namespace hatshop.Controllers
         }
 
         // POST: Orders/Delete/5
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

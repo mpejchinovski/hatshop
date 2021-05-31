@@ -7,9 +7,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using hatshop.Data;
 using hatshop.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace hatshop.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class CategoriesController : Controller
     {
         private readonly HatShopDbContext _context;

@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using hatshop.Data;
 
 namespace hatshop.Migrations
 {
     [DbContext(typeof(HatShopDbContext))]
-    partial class HatShopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210531172815_Quantity")]
+    partial class Quantity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

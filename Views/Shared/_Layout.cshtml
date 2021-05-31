@@ -31,15 +31,18 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Shop" asp-action="Index">Shop</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Hats" asp-action="Index">Hats</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Orders" asp-action="Index">Orders</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Categories" asp-action="Index">Categories</a>
-                        </li>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Hats" asp-action="Index">Hats</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Orders" asp-action="Index">Orders</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Categories" asp-action="Index">Categories</a>
+                            </li>
+                        }
                     </ul>
                     <ul class="navbar-nav d-flex flex-row">
                         @* Icons *@
@@ -49,10 +52,11 @@
                                 <span class="badge badge-pill bg-danger no-cart-items">0</span>
                                 <span><i class="fas fa-shopping-cart"></i></span>
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown" id="cart-dropdown-menu">
-                                @* Dropdown menu *@
+                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown"
+                                id="cart-dropdown-menu">
+                                @* Cart dropdown menu *@
                                 <li id="cart-summary">
-                                    <div class="card" style="width: 18rem;">
+                                    <div class="card mb-3" style="width: 20rem;">
                                         <div class="card-body">
                                             <h5 class="card-title cart-hat-title">Your order</h5>
                                             <p class="card-text">
@@ -64,7 +68,7 @@
                                             <h6 class="card-text cart-total">$0</h6>
                                             @* <button class="btn btn-danger remove-from-cart">Remove</button> *@
                                         </div>
-                                        <div class="card-body d-flex flex-row">
+                                        <div class="card-body d-flex flex-row" style="margin: auto;">
                                             <a href="@(User.Identity.IsAuthenticated ? "/Orders/Create" : "/Identity/Account/Login")"
                                                 class="btn btn-primary card-link btn-thinner checkout-cart">Checkout</a>
                                             <a href="#" class="btn btn-danger card-link btn-thinner clear-cart">Clear
@@ -77,9 +81,25 @@
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item me-3 me-lg-0">
-                                <a class="nav-link" href="/Identity/Account/Manage">
-                                    <i class="fas fa-user"></i>
+                                <a class="nav-link dropdown-toggle" href="#" id="user-dropdown-toggle" role="button"
+                                data-mdb-toggle="dropdown" aria-expanded="false">
+                                    <span><i class="fas fa-user"></i></span>
                                 </a>
+                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown"
+                                id="user-dropdown-menu">
+                                    @* User dropdown menu *@
+                                    <div class="card" id="user-menu-body">
+                                        <div class="card-header text-muted">Account</div>
+                                        <ul class="list-group list-group-flush">
+                                            <a href="/Identity/Account/Manage">
+                                                <li class="list-group-item">Manage account</li>
+                                            </a>
+                                            <a asp-controller="Orders" asp-action="Index">
+                                                <li class="list-group-item">My orders</li>
+                                            </a>
+                                        </ul>
+                                    </div>
+                                </ul>
                             </li>
                             <form method="post" asp-area="Identity" asp-page="/Account/Logout">
                                 <li class="nav-item me-3 me-lg-0">
@@ -88,20 +108,22 @@
                                     </a>
                                 </li>
                             </form>
-                        } else {
-                              @if (!User.Identity.IsAuthenticated)
-                        {
-                            <li class="nav-item me-3 me-lg-0">
-                                <a class="nav-link" href="/Identity/Account/Login">
-                                    Login
-                                </a>
-                            </li>
-                            <li class="nav-item me-3 me-lg-0">
-                                <a class="nav-link" href="/Identity/Account/Register">
-                                    Register
-                                </a>
-                            </li>
                         }
+                        else
+                        {
+                            @if (!User.Identity.IsAuthenticated)
+                            {
+                                <li class="nav-item me-3 me-lg-0">
+                                    <a class="nav-link" href="/Identity/Account/Login">
+                                        Login
+                                    </a>
+                                </li>
+                                <li class="nav-item me-3 me-lg-0">
+                                    <a class="nav-link" href="/Identity/Account/Register">
+                                        Register
+                                    </a>
+                                </li>
+                            }
                         }
                     </ul>
                 </div>

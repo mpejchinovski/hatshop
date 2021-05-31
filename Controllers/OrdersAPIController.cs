@@ -7,6 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using hatshop.Data;
 using hatshop.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
+using hatshop.ViewModels;
 
 namespace hatshop.Controllers
 {
@@ -25,6 +29,16 @@ namespace hatshop.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
+            string userIdValue = User.Identity.Name;
+            if (User.Identity is ClaimsIdentity claimsIdentity)
+            {
+                var userIdClaim = claimsIdentity.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+
+                if (userIdClaim != null)
+                {
+                    userIdValue = userIdClaim.Value;
+                }
+            }
             return await _context.Orders.ToListAsync();
         }
 
@@ -78,12 +92,40 @@ namespace hatshop.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<Order>> PostOrder(Order order)
+        public async Task<ActionResult<Order>> PostOrder(IEnumerable<OrderHatViewModel> orderItems)
         {
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
+            string userIdValue = User.Identity.Name;
+            if (User.Identity is ClaimsIdentity claimsIdentity)
+            {
+                var userIdClaim = claimsIdentity.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
 
-            return CreatedAtAction("GetOrder", new { id = order.Id }, order);
+                if (userIdClaim != null)
+                {
+                    userIdValue = userIdClaim.Value;
+
+                    Order order = new Order
+                    {
+                        UserId = userIdValue,
+                        DateTime = DateTime.Now
+                    };
+
+                    List<OrderHat> orderHats = new List<OrderHat>();
+                    foreach (var item in orderItems)
+                    {
+                        orderHats.Add(new OrderHat { OrderId = order.Id, HatId = item.HatId, Quantity = item.Quantity });
+                        order.Total += await _context.Hats.Where(h => h.Id == item.HatId).Select(h => h.Price).FirstOrDefaultAsync() * item.Quantity;
+                    }
+
+                    order.Hats = orderHats;
+
+                    _context.Orders.Add(order);
+                    await _context.SaveChangesAsync();
+
+                    return CreatedAtAction("GetOrder", new { id = order.Id }, order);
+                }
+                return Unauthorized();
+            }
+            return Unauthorized();
         }
 
         // DELETE: api/OrdersAPI/5

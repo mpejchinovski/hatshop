@@ -93,7 +93,6 @@ namespace hatshop.Controllers
             }
 
             var hat = await _context.Hats.FindAsync(id);
-            Console.WriteLine(hat);
             
             if (hat == null)
             {

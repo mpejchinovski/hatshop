@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace hatshop.Models
 {
@@ -12,9 +13,13 @@ namespace hatshop.Models
         public int Id { get; set; }
 
         public int OrderId { get; set; }
+        [JsonIgnore]
         public Order Order { get; set; }
 
         public int HatId { get; set; }
+        [JsonIgnore]
         public Hat Hat { get; set; }
+
+        public int Quantity { get; set; }
     }
 }

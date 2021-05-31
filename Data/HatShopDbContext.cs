@@ -23,14 +23,18 @@ namespace hatshop.Data
             base.OnModelCreating(builder);
 
             builder.Entity<OrderHat>()
-            .HasOne<Order>(orderHat => orderHat.Order)
-            .WithMany(order => order.Hats)
-            .HasForeignKey(orderHat => orderHat.OrderId);
+            .HasOne<Order>(oh => oh.Order)
+            .WithMany(o => o.Hats)
+            .HasForeignKey(oh => oh.OrderId);
 
             builder.Entity<OrderHat>()
-            .HasOne<Hat>(orderHat => orderHat.Hat)
-            .WithMany(hat => hat.Orders)
-            .HasForeignKey(orderHat => orderHat.HatId);
+            .HasOne<Hat>(oh => oh.Hat)
+            .WithMany(h => h.Orders)
+            .HasForeignKey(oh => oh.HatId);
+
+            builder.Entity<OrderHat>()
+            .HasIndex(oh => new { oh.OrderId, oh.HatId })
+            .IsUnique();
 
             builder.Entity("hatshop.Models.ApplicationUser", b =>
             {
