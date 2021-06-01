@@ -18,6 +18,7 @@ using hatshop.ViewModels;
 
 namespace hatshop.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class HatsController : Controller
     {
         private readonly HatShopDbContext _context;
@@ -36,6 +37,7 @@ namespace hatshop.Controllers
         }
 
         // GET: Hats/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -93,7 +95,7 @@ namespace hatshop.Controllers
             }
 
             var hat = await _context.Hats.FindAsync(id);
-            
+
             if (hat == null)
             {
                 return NotFound();
