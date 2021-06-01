@@ -42,12 +42,5 @@ $(document).ready(function () {
             window.location.href = "/Orders/Create";
     });
 
-    $(document).on('click', '.clear-cart', function () {
-        orderItems.length = 0;
-        $('.cart-entry').empty();
-        $('.no-cart-items').html(orderItems.length);
-        localStorage.setItem("order", JSON.stringify(orderItems));
-        setCartTotal();
-        toggleCartButtons(0);
-    })
+    $(document).on('click', '.clear-cart', clearCart);
 });

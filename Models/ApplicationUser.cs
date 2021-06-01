@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace hatshop.Models
 {
@@ -26,6 +27,7 @@ namespace hatshop.Models
 
         public string ProfilePicture { get; set; }
 
+        [JsonIgnore]
         public ICollection<Order> Orders { get; set; }
     }
 }

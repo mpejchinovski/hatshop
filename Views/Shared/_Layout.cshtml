@@ -80,7 +80,7 @@
                         </li>
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item me-3 me-lg-0">
+                            <li class="nav-item me-3 me-lg-0" style="width: 56px;">
                                 <a class="nav-link dropdown-toggle" href="#" id="user-dropdown-toggle" role="button"
                                 data-mdb-toggle="dropdown" aria-expanded="false">
                                     <span><i class="fas fa-user"></i></span>
@@ -111,19 +111,16 @@
                         }
                         else
                         {
-                            @if (!User.Identity.IsAuthenticated)
-                            {
-                                <li class="nav-item me-3 me-lg-0">
-                                    <a class="nav-link" href="/Identity/Account/Login">
-                                        Login
-                                    </a>
-                                </li>
-                                <li class="nav-item me-3 me-lg-0">
-                                    <a class="nav-link" href="/Identity/Account/Register">
-                                        Register
-                                    </a>
-                                </li>
-                            }
+                            <li class="nav-item me-3 me-lg-0">
+                                <a class="nav-link" href="/Identity/Account/Login">
+                                    Login
+                                </a>
+                            </li>
+                            <li class="nav-item me-3 me-lg-0">
+                                <a class="nav-link" href="/Identity/Account/Register">
+                                    Register
+                                </a>
+                            </li>
                         }
                     </ul>
                 </div>
@@ -144,6 +141,7 @@
     <script type="text/javascript" src="~/js/createCartEntry.js"></script>
     <script type="text/javascript" src="~/js/manageCart.js"></script>
     <script type="text/javascript" src="~/js/addToCart.js"></script>
+    <script type="text/javascript" src="~/js/clearCart.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             var urlParams = new URLSearchParams(window.location.search);

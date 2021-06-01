@@ -7,7 +7,7 @@ function addToCart() {
         id: Math.round(Math.random() * 1000),
         hatId: parseInt(cardElement.attr("id")),
         name: cardElement.find('.hat-name').text(),
-        description: cardElement.find('.hat-description').val().trim(),
+        description: cardElement.find('input.hat-description').val().trim(),
         image: cardElement.find('.hat-img').attr("src"),
         price: parseFloat(cardElement.find('.hat-price').text().replace("$", "").trim()),
         stock: parseInt(cardElement.find('.hat-stock').text()),

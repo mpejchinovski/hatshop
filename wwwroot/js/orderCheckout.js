@@ -1,7 +1,7 @@
 function createProductTableRow(item) {
     let row = document.createElement('tr');
     row.innerHTML = `
-                <td class="w-25 mh-25"><img src="${item.image}" class="ml-5 rounded-circle" style="width: 25%"></td>
+                <td class="w-25 mh-25"><img src="${item.image}" class="ml-5 rounded-circle order-hat-img"></td>
                 <td>${item.name}</td>
                 <td>$${item.price}</td>
                 <td>${item.quantity}</td>
@@ -31,7 +31,8 @@ $(document).ready(function () {
         <td></td>
         <td></td>
         <td></td>
-        <td class="order-total">$` + orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0) + `</td></tr>`
+        <td class="order-total">$` + orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0) + `</td>
+	<td></td></tr>`
     );
 
     $('.create-order').click(function () {
@@ -42,9 +43,15 @@ $(document).ready(function () {
             data: JSON.stringify(orderItems.map(item => ({ HatId: item.hatId, Quantity: item.quantity }))),
             success: data => {
                 console.log(data);
-                alert('Order successful!');
-                window.location.href = "/Orders";
-            }
+                if (data.statusCode == 200) {
+                    alert('Order successful!');
+                    clearCart();
+                    window.location.href = "/Orders";
+                }
+                else {
+                    alert('Error creating order!');
+                }
+            },
         })
     });
 });

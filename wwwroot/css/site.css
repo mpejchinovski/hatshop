@@ -31,12 +31,6 @@ html {
   font-size: 14px;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
 .border-top {
   border-top: 1px solid #e5e5e5;
 }
@@ -104,8 +98,8 @@ main {
 
 #cart-dropdown-menu {
   left: auto;
-  right: -135px;
-  top: 53px;
+  right: -131px;
+  top: 48px;
   width: 332px;
   max-height: 800px;
   overflow-y: scroll;
@@ -115,7 +109,7 @@ main {
 #user-dropdown-menu {
   left: auto;
   right: 6px;
-  top: 61px;
+  top: 57px;
 }
 
 #user-dropdown-menu>.card {
@@ -153,9 +147,8 @@ main {
 }
 
 section.container {
-  border: 1px dashed rgba(100, 100, 100, 0.6);
-  padding: 40px 30px 40px 10px;
-  margin-top: 100px;
+  padding: 40px 30px 10px 10px;
+  margin-top: 0px;
 }
 
 .cart-table>:not(caption)>*>* {
@@ -177,4 +170,36 @@ li a, li a:hover {
   text-decoration: none;
   border: none;
   outline: none;
+}
+
+.order-hat-img {
+  width: 25%;
+}
+
+@media screen and (max-width: 991px) {
+  #cart-dropdown-menu {
+    right: -262px;
+    top: 54px;
+  }
+  
+  #user-dropdown-menu {
+    right: 176px;
+    top: 139px;
+  }
+
+  .cart-hat-image-wrapper {
+    display: none;
+  }
+
+  html {
+    font-size: 16px;
+  }
+
+  #shop-icon {
+    display: none;
+  }
+
+  .order-hat-img {
+    width: 50%;
+  }
 }

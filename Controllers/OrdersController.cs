@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace hatshop.Controllers
 {
+    [Authorize]
     public class OrdersController : Controller
     {
         private readonly HatShopDbContext _context;
@@ -40,8 +41,9 @@ namespace hatshop.Controllers
         public async Task<IActionResult> Index()
         {
             var userId = GetUserId();
-            Console.WriteLine(userId);
-            var orders = _context.Orders.Include(o => o.Hats).ThenInclude(h => h.Hat).Where(o => o.UserId == userId);
+            var orders = _context.Orders.Include(o => o.Hats).ThenInclude(h => h.Hat).Include(o => o.User).AsQueryable();
+            if (!User.IsInRole("Admin"))
+                orders = orders.Where(o => o.UserId == userId);
 
             return View(await orders.ToListAsync());
         }
@@ -71,11 +73,9 @@ namespace hatshop.Controllers
         }
 
         // GET: Orders/Create
-        [Authorize]
         public IActionResult Create()
         {
             string userIdValue = GetUserId();
-            Console.WriteLine(userIdValue);
             return View();
         }
 

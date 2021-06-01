@@ -18,15 +18,18 @@ namespace hatshop.Models
         public string Description { get; set; }
 
         public int? CategoryId { get; set; }
+        [JsonIgnore]
         public Category Category { get; set; }
 
         [Display(Name = "Price (USD)")]
         public double Price { get; set; }
 
         public int Stock { get; set; }
-
+        
+        [JsonIgnore]
         public string PicturePath { get; set; }
-
+        
+        [JsonIgnore]
         public ICollection<OrderHat> Orders { get; set; }
     }
 }

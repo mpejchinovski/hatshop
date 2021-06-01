@@ -1,7 +1,6 @@
 @model IEnumerable<hatshop.Models.Order>
 
 @{
-    ;
 }
 
 <!DOCTYPE html>
@@ -21,6 +20,15 @@
                     <th>
                         Order no.
                     </th>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <th>
+                            User ID
+                        </th>
+                        <th>
+                            User name
+                        </th>
+                    }
                     <th>
                         Date and time
                     </th>
@@ -40,6 +48,15 @@
                         <td>
                             @Html.DisplayFor(modelItem => item.Id)
                         </td>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <td>
+                                @Html.DisplayFor(modelItem => item.UserId)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.User.FullName)
+                            </td>
+                        }
                         <td>
                             @Html.DisplayFor(modelItem => item.DateTime)
                         </td>

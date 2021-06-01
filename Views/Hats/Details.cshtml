@@ -15,7 +15,7 @@
 
 <body>
     <div class="d-flex flex-column">
-        <section class="container">
+        <section class="container mt-4">
             <div class="row hat-data" id="@Model.Id">
                 <div class="col-md-6 mb-4 mb-md-0">
                     <div class="col-12 mb-0 d-flex">
@@ -33,6 +33,7 @@
                     <p class="pt-1 hat-description">
                         @Model.Description
                     </p>
+                    <input type="hidden" class="hat-description" name="hat-description" value="@Model.Description">
                     <div class="table-responsive">
                         <table class="table table-sm table-borderless mb-0">
                             <tbody>

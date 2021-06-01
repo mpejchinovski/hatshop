@@ -2,7 +2,7 @@ function createCartEntry({ id, name, description, image, price, quantity } = {})
     return `<li id=${id} class="cart-entry">
                 <div class="card mb-3" style="max-width: 540px; max-height: 230px; overflow: clip">
                     <div class="row g-0">
-                        <div class="col-md-4" style="height: 100px; position: relative; top: 20px; left: 12px;">
+                        <div class="col-md-4 cart-hat-image-wrapper" style="height: 100px; position: relative; top: 20px; left: 12px;">
                             <img src="${image}" alt="..." class="img-fluid rounded-circle cart-hat-image" />
                         </div>
                         <div class="col-md-8">

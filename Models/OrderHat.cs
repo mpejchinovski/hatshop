@@ -17,7 +17,6 @@ namespace hatshop.Models
         public Order Order { get; set; }
 
         public int HatId { get; set; }
-        [JsonIgnore]
         public Hat Hat { get; set; }
 
         public int Quantity { get; set; }

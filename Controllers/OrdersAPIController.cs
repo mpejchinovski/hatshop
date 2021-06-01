@@ -11,9 +11,17 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using hatshop.ViewModels;
+using System.Net;
+using System.Net.Http;
+using Newtonsoft.Json;
+using System.Text.Json;
+using System.Dynamic;
+using System.Reflection;
+using System.ComponentModel;
 
 namespace hatshop.Controllers
 {
+    [Authorize]
     [Route("api/orders")]
     [ApiController]
     public class OrdersAPIController : ControllerBase
@@ -25,9 +33,7 @@ namespace hatshop.Controllers
             _context = context;
         }
 
-        // GET: api/OrdersAPI
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
+        public string GetUserId()
         {
             string userIdValue = User.Identity.Name;
             if (User.Identity is ClaimsIdentity claimsIdentity)
@@ -35,14 +41,40 @@ namespace hatshop.Controllers
                 var userIdClaim = claimsIdentity.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
 
                 if (userIdClaim != null)
-                {
-                    userIdValue = userIdClaim.Value;
-                }
+                    return userIdClaim.Value;
             }
-            return await _context.Orders.ToListAsync();
+            return string.Empty;
+        }
+
+        // GET: api/orders
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public async Task<JsonResult> GetOrders()
+        {
+            var orders = await _context.Orders.Include(o => o.Hats).ThenInclude(h => h.Hat).ToListAsync();
+            var result = new List<dynamic>();
+
+            foreach (var order in orders)
+            {
+                IDictionary<string, object> newOrder = new ExpandoObject();
+
+                PropertyInfo[] properties = order.GetType().GetProperties();
+                foreach (PropertyInfo property in properties)
+                    newOrder.Add(property.Name, property.GetValue(order, null));
+
+                newOrder["Hats"] = order.Hats.Select(h => new { h.Hat, quantity = h.Quantity });
+
+                result.Add(newOrder);
+            }
+
+            return new JsonResult(result, new JsonSerializerOptions
+            {
+                WriteIndented = true,
+            });
         }
 
         // GET: api/OrdersAPI/5
+        [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
         public async Task<ActionResult<Order>> GetOrder(int id)
         {
@@ -59,6 +91,7 @@ namespace hatshop.Controllers
         // PUT: api/OrdersAPI/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
+        [NonAction]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutOrder(int id, Order order)
         {
@@ -92,8 +125,9 @@ namespace hatshop.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<Order>> PostOrder(IEnumerable<OrderHatViewModel> orderItems)
+        public async Task<HttpResponseMessage> PostOrder(IEnumerable<OrderHatViewModel> orderItems)
         {
+            HttpResponseMessage response;
             string userIdValue = User.Identity.Name;
             if (User.Identity is ClaimsIdentity claimsIdentity)
             {
@@ -112,8 +146,16 @@ namespace hatshop.Controllers
                     List<OrderHat> orderHats = new List<OrderHat>();
                     foreach (var item in orderItems)
                     {
+                        Hat hat = await _context.Hats.FindAsync(item.HatId);
+                        if (hat.Stock < item.Quantity)
+                        {
+                            response = new HttpResponseMessage(HttpStatusCode.BadRequest);
+                            response.Content = new StringContent("Out of stock");
+                            return response;
+                        }
+                        hat.Stock = hat.Stock - item.Quantity >= 0 ? hat.Stock - item.Quantity : 0;
+                        order.Total += hat.Price;
                         orderHats.Add(new OrderHat { OrderId = order.Id, HatId = item.HatId, Quantity = item.Quantity });
-                        order.Total += await _context.Hats.Where(h => h.Id == item.HatId).Select(h => h.Price).FirstOrDefaultAsync() * item.Quantity;
                     }
 
                     order.Hats = orderHats;
@@ -121,14 +163,16 @@ namespace hatshop.Controllers
                     _context.Orders.Add(order);
                     await _context.SaveChangesAsync();
 
-                    return CreatedAtAction("GetOrder", new { id = order.Id }, order);
+                    response = new HttpResponseMessage(HttpStatusCode.OK);
+                    return response;
                 }
-                return Unauthorized();
+                return new HttpResponseMessage(HttpStatusCode.Unauthorized);
             }
-            return Unauthorized();
+            return new HttpResponseMessage(HttpStatusCode.Unauthorized);
         }
 
         // DELETE: api/OrdersAPI/5
+        [NonAction]
         [HttpDelete("{id}")]
         public async Task<ActionResult<Order>> DeleteOrder(int id)
         {
